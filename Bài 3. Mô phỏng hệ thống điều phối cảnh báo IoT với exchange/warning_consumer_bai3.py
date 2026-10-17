@@ -1,8 +1,8 @@
 import pika
 from datetime import datetime
 
-# Cấu hình địa chỉ RabbitMQ Broker (Sửa lại nếu dùng IP broker chung của lớp)
-BROKER_HOST = 'localhost'
+# Cấu hình địa chỉ CloudAMQP Broker
+AMQP_URL = "amqps://edyjsave:eAvCbSvcllDVRa-Vx8l-AtfPwVRumSnS@gerbil.rmq.cloudamqp.com/edyjsave"
 EXCHANGE_NAME = 'iot_alert_exchange'
 QUEUE_NAME = 'warning_queue'
 ROUTING_KEY = 'warning'
@@ -19,8 +19,9 @@ def callback(ch, method, properties, body):
         log_file.write(f"[{timestamp}] {output}\n")
 
 def main():
-    # 1. Kết nối tới RabbitMQ broker
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host=BROKER_HOST))
+    # 1. Kết nối tới CloudAMQP broker
+    params = pika.URLParameters(AMQP_URL)
+    connection = pika.BlockingConnection(params)
     channel = connection.channel()
 
     # 2. Khai báo direct exchange tên iot_alert_exchange
@@ -36,7 +37,7 @@ def main():
         routing_key=ROUTING_KEY
     )
 
-    print(f"[*] Đang chờ cảnh báo mức '{ROUTING_KEY}' tại [{QUEUE_NAME}]. Nhấn Ctrl+C để thoát.")
+    print(f"[*] Đang chờ cảnh báo mức '{ROUTING_KEY}' tại [{QUEUE_NAME}] trên CloudAMQP. Nhấn Ctrl+C để thoát.")
 
     # 5. Lắng nghe và nhận message
     channel.basic_consume(

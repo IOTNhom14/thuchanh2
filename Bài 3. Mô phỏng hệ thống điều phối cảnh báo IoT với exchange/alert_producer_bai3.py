@@ -1,13 +1,14 @@
 import pika
 import time
 
-# Cấu hình địa chỉ RabbitMQ Broker (Sửa lại nếu dùng IP broker chung của lớp)
-BROKER_HOST = 'localhost'
+# Cấu hình địa chỉ CloudAMQP Broker
+AMQP_URL = "amqps://edyjsave:eAvCbSvcllDVRa-Vx8l-AtfPwVRumSnS@gerbil.rmq.cloudamqp.com/edyjsave"
 EXCHANGE_NAME = 'iot_alert_exchange'
 
 def main():
-    # 1. Kết nối tới RabbitMQ broker
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host=BROKER_HOST))
+    # 1. Kết nối tới CloudAMQP broker
+    params = pika.URLParameters(AMQP_URL)
+    connection = pika.BlockingConnection(params)
     channel = connection.channel()
 
     # 2. Tạo direct exchange tên iot_alert_exchange
@@ -20,7 +21,7 @@ def main():
         ("critical", "Cam bien kho lanh mat ket noi critical")
     ]
 
-    print("--- BẮT ĐẦU GỬI CẢNH BÁO TỚI EXCHANGE ---")
+    print("--- BẮT ĐẦU GỬI CẢNH BÁO TỚI EXCHANGE TRÊN CLOUDAMQP ---")
     for routing_key, message in alerts:
         # Gửi message vào exchange kèm theo routing_key tương ứng
         channel.basic_publish(

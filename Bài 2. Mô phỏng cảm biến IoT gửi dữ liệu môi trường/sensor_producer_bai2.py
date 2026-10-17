@@ -2,6 +2,7 @@ import pika
 import json
 import time
 import random
+from datetime import datetime
 
 AMQP_URL = "amqps://edyjsave:eAvCbSvcllDVRa-Vx8l-AtfPwVRumSnS@gerbil.rmq.cloudamqp.com/edyjsave"
 QUEUE_NAME = "sensor_data_queue"
@@ -19,11 +20,12 @@ print("Bắt đầu gửi dữ liệu mỗi 3 giây (Nhấn Ctrl+C để dừng)
 
 try:
     while True:
-        # Sinh ngẫu nhiên nhiệt độ và độ ẩm
+        # Sinh ngẫu nhiên nhiệt độ và độ ẩm (bổ sung trường thời gian gửi - phần mở rộng)
         payload_dict = {
             "device_id": "sensor01",
             "temperature": round(random.uniform(20.0, 40.0), 1),
-            "humidity": round(random.uniform(30.0, 80.0), 1)
+            "humidity": round(random.uniform(30.0, 80.0), 1),
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
         
         message_json = json.dumps(payload_dict)

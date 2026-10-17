@@ -12,11 +12,15 @@ def callback(ch, method, properties, body):
         device_id = data.get("device_id", "Unknown")
         temperature = data.get("temperature", 0.0)
         humidity = data.get("humidity", 0.0)
+        timestamp = data.get("timestamp")
         
         # In ra mã thiết bị, nhiệt độ, độ ẩm
         print(f"Device: {device_id}")
         print(f"Temperature: {temperature}")
         print(f"Humidity: {humidity}")
+        # Hiển thị thời gian gửi (phần mở rộng)
+        if timestamp:
+            print(f"Timestamp: {timestamp}")
         
         # Kiểm tra ngưỡng cảnh báo
         if temperature > 35:

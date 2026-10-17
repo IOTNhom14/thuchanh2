@@ -4,13 +4,9 @@ from datetime import datetime
 import pika
 
 # ==========================================================
-# CẤU HÌNH RABBITMQ BROKER
+# CẤU HÌNH CLOUDAMQP BROKER
 # ==========================================================
-# Mặc định kết nối tới RabbitMQ cục bộ hoặc broker dùng chung
-RABBITMQ_HOST = "localhost"
-RABBITMQ_PORT = 5672
-RABBITMQ_USER = "guest"
-RABBITMQ_PASS = "guest"
+AMQP_URL = "amqps://edyjsave:eAvCbSvcllDVRa-Vx8l-AtfPwVRumSnS@gerbil.rmq.cloudamqp.com/edyjsave"
 QUEUE_NAME = "iot_lab_queue"
 
 # ==========================================================
@@ -21,16 +17,9 @@ STUDENT_ID = "B23DCCN583"  # Mã sinh viên
 GREETING = "Xin chao tu ung dung Python AMQP"
 
 def create_connection():
-    """Tạo kết nối và channel tới RabbitMQ broker."""
-    credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
-    parameters = pika.ConnectionParameters(
-        host=RABBITMQ_HOST,
-        port=RABBITMQ_PORT,
-        credentials=credentials,
-        connection_attempts=3,
-        retry_delay=2
-    )
-    connection = pika.BlockingConnection(parameters)
+    """Tạo kết nối và channel tới CloudAMQP broker."""
+    params = pika.URLParameters(AMQP_URL)
+    connection = pika.BlockingConnection(params)
     channel = connection.channel()
     # Khởi tạo queue (nếu chưa tồn tại)
     channel.queue_declare(queue=QUEUE_NAME, durable=False)
@@ -74,18 +63,18 @@ def send_continuous_messages(channel, interval=3):
 def main():
     print("=" * 60)
     print("CHƯƠNG TRÌNH PRODUCER - BÀI 1: GỬI MESSAGE QUA AMQP QUEUE")
-    print(f"Broker: {RABBITMQ_HOST}:{RABBITMQ_PORT}")
+    print("Broker: CloudAMQP (gerbil.rmq.cloudamqp.com)")
     print(f"Queue: {QUEUE_NAME}")
     print(f"Sinh viên: {STUDENT_NAME} - MSV: {STUDENT_ID}")
     print("=" * 60)
 
     try:
-        print(f"Đang kết nối tới RabbitMQ Broker '{RABBITMQ_HOST}:{RABBITMQ_PORT}'...")
+        print("Đang kết nối tới CloudAMQP Broker...")
         connection, channel = create_connection()
-        print("-> Kết nối thành công và đã khởi tạo queue!\n")
+        print("-> Kết nối thành công và đã sẵn sàng queue!\n")
     except Exception as e:
-        print(f"\n[ERROR] Không thể kết nối tới RabbitMQ broker: {e}")
-        print("[GỢI Ý] Hãy đảm bảo RabbitMQ server đang chạy (ví dụ: brew services start rabbitmq hoặc docker run -d -p 5672:5672 rabbitmq:3-management).")
+        print(f"\n[ERROR] Không thể kết nối tới CloudAMQP broker: {e}")
+        print("[GỢI Ý] Hãy kiểm tra kết nối Internet và URL CloudAMQP.")
         sys.exit(1)
 
     try:
@@ -102,7 +91,7 @@ def main():
         print(f"\n[ERROR] Đã xảy ra lỗi trong quá trình gửi: {e}")
     finally:
         if connection and connection.is_open:
-            print("Đang đóng kết nối RabbitMQ...")
+            print("Đang đóng kết nối CloudAMQP...")
             connection.close()
             print("Đã ngắt kết nối an toàn. Kết thúc chương trình Producer.")
 

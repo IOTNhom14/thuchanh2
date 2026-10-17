@@ -3,13 +3,9 @@ from datetime import datetime
 import pika
 
 # ==========================================================
-# CẤU HÌNH RABBITMQ BROKER
+# CẤU HÌNH CLOUDAMQP BROKER
 # ==========================================================
-# Mặc định kết nối tới RabbitMQ cục bộ hoặc broker dùng chung
-RABBITMQ_HOST = "localhost"
-RABBITMQ_PORT = 5672
-RABBITMQ_USER = "guest"
-RABBITMQ_PASS = "guest"
+AMQP_URL = "amqps://edyjsave:eAvCbSvcllDVRa-Vx8l-AtfPwVRumSnS@gerbil.rmq.cloudamqp.com/edyjsave"
 QUEUE_NAME = "iot_lab_queue"
 
 def on_message_received(ch, method, properties, body):
@@ -31,22 +27,15 @@ def on_message_received(ch, method, properties, body):
 def main():
     print("=" * 60)
     print("CHƯƠNG TRÌNH CONSUMER - BÀI 1: LẮNG NGHE MESSAGE TỪ AMQP QUEUE")
-    print(f"Broker: {RABBITMQ_HOST}:{RABBITMQ_PORT}")
+    print("Broker: CloudAMQP (gerbil.rmq.cloudamqp.com)")
     print(f"Lắng nghe queue: {QUEUE_NAME}")
     print("=" * 60)
 
-    credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
-    parameters = pika.ConnectionParameters(
-        host=RABBITMQ_HOST,
-        port=RABBITMQ_PORT,
-        credentials=credentials,
-        connection_attempts=3,
-        retry_delay=2
-    )
+    params = pika.URLParameters(AMQP_URL)
 
     try:
-        print(f"Đang kết nối tới RabbitMQ Broker '{RABBITMQ_HOST}:{RABBITMQ_PORT}'...")
-        connection = pika.BlockingConnection(parameters)
+        print("Đang kết nối tới CloudAMQP Broker...")
+        connection = pika.BlockingConnection(params)
         channel = connection.channel()
         print("-> Kết nối thành công tới broker!")
 
@@ -78,11 +67,11 @@ def main():
             pass
     except Exception as e:
         print(f"\n[ERROR] Không thể kết nối hoặc xảy ra lỗi: {e}")
-        print("[GỢI Ý] Hãy đảm bảo RabbitMQ server đang chạy (ví dụ: brew services start rabbitmq hoặc docker run -d -p 5672:5672 rabbitmq:3-management).")
+        print("[GỢI Ý] Hãy kiểm tra kết nối Internet và URL CloudAMQP.")
     finally:
         try:
             if 'connection' in locals() and connection.is_open:
-                print("Đang đóng kết nối RabbitMQ...")
+                print("Đang đóng kết nối CloudAMQP...")
                 connection.close()
                 print("Đã ngắt kết nối an toàn. Kết thúc chương trình Consumer.")
         except Exception:

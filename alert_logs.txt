@@ -1,0 +1,2 @@
+[2026-10-17 18:59:08] [warning_queue] Da nhan: Nhiet do phong may vuot nguong warning
+[2026-10-17 18:59:09] [critical_queue] Da nhan: Cam bien kho lanh mat ket noi critical
